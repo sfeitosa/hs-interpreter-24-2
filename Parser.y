@@ -14,12 +14,14 @@ import Lexer
   num           { TokenNum $$ }
   '+'           { TokenAdd }
   and           { TokenAnd }
+  "=="          { TokenEq }
   if            { TokenIf }
   then          { TokenThen }
   else          { TokenElse }
 
 %nonassoc if then else 
-%left '+' and 
+%left "=="
+%left '+' and
 
 %% 
 
@@ -28,6 +30,7 @@ Exp : true                        { BTrue }
     | num                         { Num $1 }
     | Exp '+' Exp                 { Add $1 $3 }
     | Exp and Exp                 { And $1 $3 }
+    | Exp "==" Exp                { Eq $1 $3 }
     | if Exp then Exp else Exp    { If $2 $4 $6 }
 
 {

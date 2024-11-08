@@ -7,8 +7,12 @@ data Expr = BTrue
           | Num Int 
           | Add Expr Expr 
           | And Expr Expr 
+          | Eq Expr Expr
           | If Expr Expr Expr 
-          deriving Show
+          | Var String 
+          | Lam String Expr 
+          | App Expr Expr
+          deriving (Show, Eq)
 
 data Ty = TBool 
         | TNum 
@@ -19,14 +23,21 @@ data Token = TokenTrue
            | TokenNum Int 
            | TokenAdd 
            | TokenAnd 
+           | TokenEq
            | TokenIf
            | TokenThen
            | TokenElse 
+           | TokenVar String
+           | TokenLam 
+           | TokenArrow 
            deriving Show
 
 lexer :: String -> [Token]
 lexer [] = [] 
 lexer ('+':cs) = TokenAdd : lexer cs 
+lexer ('\\':cs) = TokenLam : lexer cs 
+lexer ('=':'=':cs) = TokenEq : lexer cs 
+lexer ('-':'>':cs) = TokenArrow : lexer cs 
 lexer (c:cs) 
    | isSpace c = lexer cs 
    | isAlpha c = lexerKW (c:cs) 
@@ -44,5 +55,5 @@ lexerKW cs = case span isAlpha cs of
                ("if", rest) -> TokenIf : lexer rest 
                ("then", rest) -> TokenThen : lexer rest 
                ("else", rest) -> TokenElse : lexer rest 
-               _ -> error "Lexical error: símbolo inválido!"
+               (var, rest) -> TokenVar var : lexer rest
 
